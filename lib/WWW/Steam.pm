@@ -48,6 +48,7 @@ class WWW::Steam {
         my $url = sprintf('%s/%s/%s/%s/?', $!api_url, $iname, $mname, $version);
         my %rest = (
             key => $!api_key,
+            include_appinfo => 1,
             @args,
         );
         for my $k (keys %rest) {
