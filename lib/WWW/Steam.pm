@@ -4,9 +4,17 @@ class WWW::Steam {
     # api methods documented on https://developer.valvesoftware.com/wiki/Steam_Web_API
     use JSON;
     use LWP::Simple;
+    use WWW::Steam::Game;
 
     has $!api_key;
     has $!api_url = 'http://api.steampowered.com';
+
+    method GetUserID($username) {
+        # talk about evil
+        my $xml = get "http://steamcommunity.com/id/$username?xml=1";
+        $xml =~ m{<steamID64>(\d+)</steamID64>};
+        return $1;
+    }
 
     method GetNewsForApp {
         ...
@@ -33,7 +41,10 @@ class WWW::Steam {
     }
 
     method GetOwnedGames($steamid) {
-        return @{$self->api_call('IPlayerService', 'GetOwnedGames', 'v0001', steamid => $steamid)->{response}{games}};
+        return map { WWW::Steam::Game->new(appid => $_->{appid}, name => $_->{name},
+                                           playtime_forever => $_->{playtime_forever}) }
+                   @{$self->api_call('IPlayerService', 'GetOwnedGames', 'v0001',
+                                     steamid => $steamid)->{response}{games}};
     }
 
     method GetRecentlyPlayedGames {
@@ -54,7 +65,6 @@ class WWW::Steam {
         for my $k (keys %rest) {
             $url .= ("&$k=" . $rest{$k});
         }
-        print "$url\n";
         my $result = get($url);
         return decode_json $result;
     }
