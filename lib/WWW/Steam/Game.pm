@@ -1,11 +1,8 @@
-use mop;
+package WWW::Steam::Game;
+use Moo;
 
-class WWW::Steam::Game {
-    has $!appid is ro;
-    has $!name is ro;
-    has $!playtime_forever is ro;
+has appid => (is => 'ro');
+has name => (is => 'ro');
+has playtime_forever => (is => 'ro');
 
-    method Str {
-        return $!name
-    }
-}
+1;
